@@ -1,0 +1,63 @@
+---
+# tasks file for ecs-rhel
+
+- name: Add EPEL repository
+  yum_repository:
+    name: epel
+    description: EPEL YUM repo
+    baseurl: 'https://download.fedoraproject.org/pub/epel/$releasever/$basearch/'
+
+- name: Enable rhel-7-server-rhui-extras-rpms
+  ini_file:
+    path: /etc/yum.repos.d/redhat-rhui.repo
+    section: rhel-7-server-rhui-extras-rpms
+    option: enabled
+    value: 1
+    mode: '0644'
+    backup: false
+
+- name: Enable rhel-7-server-rhui-optional-rpms
+  ini_file:
+    path: /etc/yum.repos.d/redhat-rhui.repo
+    section: rhel-7-server-rhui-optional-rpms
+    option: enabled
+    value: 1
+    mode: '0644'
+    backup: false
+
+- name: Install docker-ce
+  import_role:
+    name: geerlingguy.docker
+  
+- name: Pull ecs agent docker image
+  docker_image:
+    name: 'docker.io/amazon/amazon-ecs-agent'
+    tag: 'latest'
+    source: pull
+
+#sudo systemctl start docker
+#sudo systemctl enable docker
+
+- name: Enable localnet in sysctl
+  sysctl:
+    name: 'net.ipv4.conf.all.route_localnet'
+    value: 1
+    state: present
+
+#sudo iptables -t nat -A PREROUTING -p tcp -d 169.254.170.2 --dport 80 -j DNAT --to-destination 127.0.0.1:51679
+#sudo iptables -t nat -A OUTPUT -d 169.254.170.2 -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 51679
+#sudo iptables -A INPUT -i eth0 -p tcp --dport 51678 -j DROP
+#sudo sh -c 'iptables-save > /etc/sysconfig/iptables'
+#sudo mkdir -p /etc/ecs && sudo touch /etc/ecs/ecs.config
+
+#sudo docker run --name ecs-agent \
+#--detach=true \
+#--privileged \
+#--restart=on-failure:10 \
+#--volume=/var/run:/var/run \
+#--volume=/var/log/ecs/:/log:Z \
+#--volume=/var/lib/ecs/data:/data:Z \
+#--volume=/etc/ecs:/etc/ecs \
+#--net=host \
+#--env-file=/etc/ecs/ecs.config \
+#amazon/amazon-ecs-agent:latest
