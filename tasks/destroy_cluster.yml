@@ -4,7 +4,7 @@
   delegate_to: localhost
   community.aws.ecs_cluster:
     name: '{{ cluster_name }}'
-    state: present
+    state: absent
 
 #ecs-cli configure --cluster "${CLUSTER_NAME}" --default-launch-type EC2 --config-name "${CLUSTER_CONFIG}" --region "${AWS_DEFAULT_REGION}"
 

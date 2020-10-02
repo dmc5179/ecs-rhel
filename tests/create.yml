@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  become: false
+  tasks:
+
+    - name: Create ECS Cluster
+      import_role:
+        name: ../../ecs-rhel
+        tasks_from: create_cluster.yml
