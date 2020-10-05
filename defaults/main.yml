@@ -5,6 +5,3 @@ cluster_name: "redhat"
 profile_name: "redhat"
 cluster_config: "redhat"
 keypair: ""
-
-docker_users:
-  - 'ec2-user'

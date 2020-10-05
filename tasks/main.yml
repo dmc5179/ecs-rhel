@@ -27,6 +27,9 @@
 - name: Install docker-ce
   import_role:
     name: geerlingguy.docker
+  vars:
+    docker_users:
+      - 'ec2-user'
   
 - name: Install pip
   package:
