@@ -1,6 +1,6 @@
 ---
 
-- name: Cluster creation
+- name: Destroy | Cluster destroy
   delegate_to: localhost
   community.aws.ecs_cluster:
     name: '{{ cluster_name }}'

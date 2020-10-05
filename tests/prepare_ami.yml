@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Prepare RHEL host to join ECS cluster or become AMI
+      import_role:
+        name: ../../ecs-rhel
+        tasks_from: prepare_ami.yml

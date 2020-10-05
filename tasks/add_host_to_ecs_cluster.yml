@@ -1,0 +1,26 @@
+---
+
+
+- name: Configure ECS
+  template:
+    src: 'ecs.config.j2'
+    dest: '/etc/ecs/ecs.config'
+
+- name: Start ECS agent container
+  docker_container:
+    name: 'ecs-agent'
+    image: 'amazon/amazon-ecs-agent:latest'
+    state: started
+    restart: true
+    restart_retries: 10
+    restart_policy: on-failure
+    privileged: true
+    network_mode: host
+    interactive: false
+    env_file: '/etc/ecs/ecs.config'
+    volumes:
+      - '/var/run:/var/run'
+      - '/var/log/ecs/:/log:Z'
+      - '/var/lib/ecs/data:/data:Z'
+      - '/etc/ecs:/etc/ecs'
+

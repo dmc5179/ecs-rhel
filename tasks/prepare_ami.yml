@@ -1,12 +1,12 @@
 ---
 # tasks file for ecs-rhel
 
-- name: Add EPEL repository
+- name: Prepare | Add EPEL repository
   package:
     name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
     state: present
 
-- name: Enable rhel-7-server-rhui-extras-rpms
+- name: Prepare | Enable rhel-7-server-rhui-extras-rpms
   ini_file:
     path: /etc/yum.repos.d/redhat-rhui.repo
     section: rhui-rhel-7-server-rhui-extras-rpms
@@ -15,7 +15,7 @@
     mode: '0644'
     backup: false
 
-- name: Enable rhel-7-server-rhui-optional-rpms
+- name: Prepare | Enable rhel-7-server-rhui-optional-rpms
   ini_file:
     path: /etc/yum.repos.d/redhat-rhui.repo
     section: rhui-rhel-7-server-rhui-optional-rpms
@@ -24,78 +24,52 @@
     mode: '0644'
     backup: false
 
-- name: Install docker-ce
+- name: Prepare | Install docker-ce
   import_role:
     name: geerlingguy.docker
   vars:
     docker_users:
       - 'ec2-user'
   
-- name: Install pip
+- name: Prepare | Install pip
   package:
     name: python2-pip
     state: present
 
-- name: Install python docker module
+- name: Prepare | Install python docker module
   pip:
     name: docker
     state: present
 
-- name: Pull ecs agent docker image
+- name: Prepare | Pull ecs agent docker image
   docker_image:
     name: 'docker.io/amazon/amazon-ecs-agent'
     tag: 'latest'
     source: pull
 
-#sudo systemctl start docker
-#sudo systemctl enable docker
-
-- name: Enable localnet in sysctl
+- name: Prepare | Enable localnet in sysctl
   sysctl:
     name: 'net.ipv4.conf.all.route_localnet'
     value: 1
     state: present
 
-- name: Add iptables PREROUTING rule
+- name: Prepare | Add iptables PREROUTING rule
   shell:
     cmd: iptables -t nat -A PREROUTING -p tcp -d 169.254.170.2 --dport 80 -j DNAT --to-destination 127.0.0.1:51679
 
-- name: Add iptables OUTPUT rule
+- name: Prepare | Add iptables OUTPUT rule
   shell:
     cmd: iptables -t nat -A OUTPUT -d 169.254.170.2 -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 51679
 
-- name: Add iptables INPUT rule
+- name: Prepare | Add iptables INPUT rule
   shell:
     cmd: iptables -A INPUT -i eth0 -p tcp --dport 51678 -j DROP
 
-- name: Save iptables rules
+- name: Prepare | Save iptables rules
   shell:
     cmd: 'iptables-save > /etc/sysconfig/iptables'
 
-- name: Create ECS config directory
+- name: Prepare | Create ECS config directory
   file:
     name: '/etc/ecs'
     state: directory
-
-- name: Configure ECS
-  template:
-    src: 'ecs.config.j2'
-    dest: '/etc/ecs/ecs.config'
-
-- name: Start ECS agent container
-  docker_container:
-    name: 'ecs-agent'
-    image: 'amazon/amazon-ecs-agent:latest'
-    state: started
-    restart: true
-    restart_retries: 10
-    restart_policy: on-failure
-    privileged: true
-    network_mode: host
-    interactive: false
-    env_file: '/etc/ecs/ecs.config'
-    volumes:
-      - '/var/run:/var/run'
-      - '/var/log/ecs/:/log:Z'
-      - '/var/lib/ecs/data:/data:Z'
-      - '/etc/ecs:/etc/ecs'

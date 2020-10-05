@@ -1,0 +1,14 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Prepare RHEL host to join ECS cluster
+      import_role:
+        name: ../../ecs-rhel
+        tasks_from: prepare_ami.yml
+
+    - name: Add a running instance to an ECS cluster
+      import_role:
+        name: ../../ecs-rhel
+        tasks_from: add_host_to_ecs_cluster.yml
