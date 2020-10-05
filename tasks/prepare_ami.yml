@@ -9,7 +9,7 @@
 - name: Prepare | Enable rhel-7-server-rhui-extras-rpms
   ini_file:
     path: /etc/yum.repos.d/redhat-rhui.repo
-    section: rhui-rhel-7-server-rhui-extras-rpms
+    section: rhel-7-server-rhui-extras-rpms
     option: enabled
     value: 1
     mode: '0644'
@@ -18,11 +18,20 @@
 - name: Prepare | Enable rhel-7-server-rhui-optional-rpms
   ini_file:
     path: /etc/yum.repos.d/redhat-rhui.repo
-    section: rhui-rhel-7-server-rhui-optional-rpms
+    section: rhel-7-server-rhui-optional-rpms
     option: enabled
     value: 1
     mode: '0644'
     backup: false
+
+- name: Prepare | Add docker yum repo
+  become: true
+  copy:
+    src: 'docker-ce.repo'
+    dest: '/etc/yum.repos.d/docker-ce.repo'
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Prepare | Install docker-ce
   import_role:
