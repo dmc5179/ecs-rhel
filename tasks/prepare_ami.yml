@@ -39,6 +39,8 @@
   vars:
     docker_users:
       - 'ec2-user'
+  tags:
+    - install_docker
   
 - name: Prepare | Install pip
   package:
@@ -63,22 +65,69 @@
     state: present
 
 - name: Prepare | Add iptables PREROUTING rule
-  shell:
-    cmd: iptables -t nat -A PREROUTING -p tcp -d 169.254.170.2 --dport 80 -j DNAT --to-destination 127.0.0.1:51679
+  iptables:
+    table: nat
+    chain: PREROUTING
+    protocol: tcp
+    destination: '169.254.170.2'
+    destination_port: '80'
+    jump: DNAT
+    to_destination: '127.0.0.1:51679'
+  tags:
+    - iptables
 
 - name: Prepare | Add iptables OUTPUT rule
-  shell:
-    cmd: iptables -t nat -A OUTPUT -d 169.254.170.2 -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 51679
+  iptables:
+    table: nat
+    chain: OUTPUT
+    protocol: tcp
+    destination: '169.254.170.2'
+    match: tcp
+    destination_port: '80'
+    jump: REDIRECT
+    to_ports: '51679'
+  tags:
+    - iptables
 
 - name: Prepare | Add iptables INPUT rule
-  shell:
-    cmd: iptables -A INPUT -i eth0 -p tcp --dport 51678 -j DROP
+  iptables:
+    chain: INPUT
+    jump: DROP
+    protocol: tcp
+    in_interface: 'eth0'
+    destination_port: '51678'
+  tags:
+    - iptables
 
 - name: Prepare | Save iptables rules
   shell:
     cmd: 'iptables-save > /etc/sysconfig/iptables'
+  tags:
+    - iptables
 
 - name: Prepare | Create ECS config directory
   file:
     name: '/etc/ecs'
+    owner: root
+    group: root
+    mode: 0755
     state: directory
+
+- name: Configure ECS
+  template:
+    src: 'ecs.config.j2'
+    dest: '/etc/ecs/ecs.config'
+
+- name: Create systemd unit for starting ECS agent
+  copy:
+    src: 'ecs-agent.service'
+    dest: '/etc/systemd/system/docker-container@ecs-agent.service'
+
+  # Don't start the service yet. This system could be an AMI template
+- name: Enable the ECS agent systemd service and ensure it is not masked
+  systemd:
+    name: 'docker-container@ecs-agent.service'
+    enabled: true
+    state: stopped
+    masked: false
+    daemon_reload: true
