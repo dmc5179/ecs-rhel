@@ -9,11 +9,15 @@
 
 - name: Prepare | Create ECS config directory
   file:
-    name: '/etc/ecs'
+    name: '{{ item }}'
     owner: root
     group: root
     mode: 0755
     state: directory
+  with_items:
+    - '/etc/ecs'
+    - '/var/log/ecs'
+    - '/var/lib/ecs/data'
 
 - name: Configure ECS
   template:
@@ -21,9 +25,9 @@
     dest: '/etc/ecs/ecs.config'
 
 - name: Install and configure docker
-  import_tasks: prepare_docker.yml
+  include_tasks: prepare_docker.yml
   when: ( podman is false )
 
 - name: Install and configure podman
-  import_tasks: prepare_podman.yml
+  include_tasks: prepare_podman.yml
   when: ( podman is true )
