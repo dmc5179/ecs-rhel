@@ -1,10 +1,28 @@
 ---
 # tasks file for ecs-rhel
 
+- name: Prepare | Enable rhel-7-server-rhui-extras-rpms
+  ini_file:
+    path: /etc/yum.repos.d/redhat-rhui.repo
+    section: rhel-7-server-rhui-extras-rpms
+    option: enabled
+    value: '1'
+    mode: '0644'
+    backup: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
+
 - name: Install podman
   package:
     name: podman
     state: present
+
+- name: Configure SELinux to allow podman systemd unit files
+  seboolean:
+    name: container_manage_cgroup
+    state: true
+    persistent: true
 
 - name: Install firewalld
   package:
@@ -31,4 +49,3 @@
     state: stopped
     masked: false
     daemon_reload: true
-
