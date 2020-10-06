@@ -5,6 +5,18 @@
   package:
     name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
     state: present
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
+
+- name: Prepare | Add EPEL repository
+  dnf:
+    name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm'
+    disable_gpg_check: true
+    state: present
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "8"
 
 - name: Prepare | Enable rhel-7-server-rhui-extras-rpms
   ini_file:
@@ -14,6 +26,9 @@
     value: 1
     mode: '0644'
     backup: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
 
 - name: Prepare | Enable rhel-7-server-rhui-optional-rpms
   ini_file:
@@ -23,6 +38,9 @@
     value: 1
     mode: '0644'
     backup: false
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
 
 - name: Prepare | Add docker yum repo
   become: true
@@ -32,6 +50,18 @@
     owner: root
     group: root
     mode: 0644
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution_major_version == "7"
+
+- name: Install python 3 for RHEL 8
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items:
+    - python3
+    - python3-devel
+    - python3-pip
 
 - name: Prepare | Install docker-ce
   import_role:
