@@ -25,6 +25,37 @@ ansible-galaxy role install --role-file requirements.txt
 | cluster_config    | "redhat" | ECS CLI cluster config (unused)  |
 | keypair           | ""       | EC2 Instance Key Pair            |
 
+## Creating an ECS cluster with the CLI
+
+- Once a RHEL AMI has been created it can be used to create the ECS cluster with the ansible role or CLI. There are quite a few options available so this is just an example.
+
+- Make sure your AWS API variables and Keypair variable are set correctly for your environment
+
+```
+export CLUSTER_NAME='redhat'
+export CLUSTER_CONFIG='redhat'
+export PROFILE_NAME='redhat'
+
+ecs-cli configure --cluster "${CLUSTER_NAME}" --default-launch-type EC2 --config-name "${CLUSTER_CONFIG}" --region "${AWS_DEFAULT_REGION}"
+
+ecs-cli configure profile --access-key "${AWS_ACCESS_KEY_ID}" --secret-key "${AWS_SECRET_ACCESS_KEY}" --profile-name "${PROFILE_NAME}"
+
+ecs-cli up --keypair "${KEYPAIR}" --capability-iam \
+           --size 2 --instance-type t2.medium \
+           --cluster-config "${CLUSTER_CONFIG}" \
+           --ecs-profile "${PROFILE_NAME}" \
+           --image-id "${AMI}"
+```
+
+- To destroy the ECS cluster run the following command
+
+```
+ecs-cli down --force \
+             --region "${AWS_DEFAULT_REGION}" \
+             --ecs-profile "${PROFILE_NAME}" \
+             --cluster-config "${CLUSTER_CONFIG}" \
+             --cluster "${CLUSTER_NAME}"
+```
 
 ## Example Playbook
 

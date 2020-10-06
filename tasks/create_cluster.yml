@@ -5,16 +5,3 @@
   community.aws.ecs_cluster:
     name: '{{ cluster_name }}'
     state: present
-
-#ecs-cli configure --cluster "${CLUSTER_NAME}" --default-launch-type EC2 --config-name "${CLUSTER_CONFIG}" --region "${AWS_DEFAULT_REGION}"
-
-#ecs-cli configure profile --access-key "${AWS_ACCESS_KEY_ID}" --secret-key "${AWS_SECRET_ACCESS_KEY}" --profile-name "${PROFILE_NAME}"
-
-#ecs-cli up --keypair "${KEYPAIR}" --capability-iam \
-#           --size 1 --instance-type t2.medium \
-#           --cluster-config "${CLUSTER_CONFIG}" \
-#           --ecs-profile "${PROFILE_NAME}" \
-#           --image-id "${AMI}"
-
-#ecs-cli down --force --region "${AWS_DEFAULT_REGION}" --ecs-profile "${PROFILE_NAME}" --cluster-config "${CLUSTER_CONFIG}" --cluster "${CLUSTER_NAME}"
-
