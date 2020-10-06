@@ -16,7 +16,7 @@ ExecStart=/usr/bin/docker run --name %i \
 --net=host \
 --env-file=/etc/ecs/ecs.config \
 amazon/amazon-ecs-agent:latest
-ExecStop=/usr/bin/docker stop %i
+ExecStop=/usr/bin/docker stop --time 15 %i
 
 [Install]
 WantedBy=default.target
