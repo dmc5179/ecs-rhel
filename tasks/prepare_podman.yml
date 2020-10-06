@@ -1,0 +1,34 @@
+---
+# tasks file for ecs-rhel
+
+- name: Install podman
+  package:
+    name: podman
+    state: present
+
+- name: Install firewalld
+  package:
+    name: firewalld
+    state: present
+
+- name: Pull ecs agent container image
+  podman_image:
+    name: 'docker.io/amazon/amazon-ecs-agent' 
+    tag: 'latest'
+    state: present
+    pull: true
+
+- name: Create systemd unit for starting ECS docker agent
+  copy:
+    src: 'ecs-agent-podman.service'
+    dest: '/etc/systemd/system/podman-container@ecs-agent.service'
+
+  # Don't start the service yet. This system could be an AMI template
+- name: Enable the ECS agent systemd service and ensure it is not masked
+  systemd:
+    name: 'podman-container@ecs-agent.service'
+    enabled: true
+    state: stopped
+    masked: false
+    daemon_reload: true
+

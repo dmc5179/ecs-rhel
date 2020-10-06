@@ -5,3 +5,7 @@ cluster_name: "redhat"
 profile_name: "redhat"
 cluster_config: "redhat"
 keypair: ""
+
+# Set this to false to use the docker daemon
+# Set this to true to use podman
+podman: false
