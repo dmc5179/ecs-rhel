@@ -18,6 +18,15 @@
     name: podman
     state: present
 
+  # ECS agent wants to talk to the daemon using this
+- name: Enable Podman Remote API Socket
+  systemd:
+    name: 'io.podman.socket'
+    enabled: true
+    state: stopped
+    masked: false
+    daemon_reload: true
+
 - name: Configure SELinux to allow podman systemd unit files
   seboolean:
     name: container_manage_cgroup
