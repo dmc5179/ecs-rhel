@@ -3,7 +3,7 @@ Description=Podman Container %I
 
 [Service]
 Restart=always
-ExecStartPre=-/usr/bin/podman rm --force %i 
+ExecStartPre=-/usr/bin/podman rm --force --ignore %i
 ExecStart=/usr/bin/podman run --name %i \
 --privileged \
 --restart=on-failure:10 \
