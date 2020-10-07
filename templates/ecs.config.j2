@@ -7,7 +7,11 @@ ECS_LOGLEVEL=info
 ECS_CLUSTER={{ cluster_name }}
 ECS_SELINUX_CAPABLE=true
 ECS_APPARMOR_CAPABLE=false
+{% if podman is false %}
 DOCKER_HOST=unix:///var/run/docker.sock
+{% else %}
+DOCKER_HOST=unix:///var/run/podman/io.podman
+{% endif %}
 ECS_UPDATES_ENABLED=true
 ECS_POLL_METRICS=true
 ECS_DISABLE_PRIVILEGED=false
