@@ -1,5 +1,7 @@
 [Unit]
 Description=Podman Container %I
+After=io.podman.socket
+Requires=io.podman.socket
 
 [Service]
 Restart=always
