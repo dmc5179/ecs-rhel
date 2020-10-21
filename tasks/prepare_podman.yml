@@ -4,7 +4,8 @@
 - name: Prepare | Enable rhel-7-server-rhui-extras-rpms
   ini_file:
     path: /etc/yum.repos.d/redhat-rhui.repo
-    section: rhel-7-server-rhui-extras-rpms
+    #section: rhel-7-server-rhui-extras-rpms
+    section: rhui-rhel-7-server-rhui-extras-rpms
     option: enabled
     value: '1'
     mode: '0644'
@@ -37,6 +38,20 @@
   package:
     name: firewalld
     state: present
+
+- name: Start firewalld service
+  systemd:
+    name: firewalld
+    enabled: true
+    state: started
+    masked: false
+
+- name: Enable masquerade
+  firewalld:
+    masquerade: true
+    state: enabled
+    permanent: true
+    zone: public
 
 - name: Pull ecs agent container image
   podman_image:
