@@ -9,4 +9,4 @@ keypair: ""
 # Set this to false to use the docker daemon
 # Set this to true to use podman
 # Note: Podman is not yet supported by this role
-podman: false
+podman: true
